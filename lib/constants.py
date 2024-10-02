@@ -15,21 +15,20 @@ class Calculations:
         self.ff = float(df_ADV[df_ADV["Parameter"] == "Friction Factor"]["Value"])
         self.bf = float((1-self.mud_density_ppg/self.pipe_density))
 
-        # Collars:
-        self.COLLAR_LEN = df_BHA[df_BHA["BHA Type"] == "Collar and BHA"]["Length (ft)"]
-        self.COLLAR_MASS = df_BHA[df_BHA["BHA Type"] == "Collar and BHA"]["Mass (lbs)"]
-        self.COLLAR_OD = np.array(df_BHA[df_BHA["BHA Type"] == "Collar and BHA"]["OD (in)"])
-        self.COLLAR_ID = np.array(df_BHA[df_BHA["BHA Type"] == "Collar and BHA"]["ID (in)"])
-
         # Drill pipes:
-        self.dp_length = self.total_length - self.COLLAR_LEN.sum()
+        self.dp_length = self.total_length - df_BHA["Total Length (ft)"].iloc[0]
         self.N_DP, self.L_DP = nearestLength(self.dp_length, self.elem_length)
-        self.N_DP = round(self.N_DP)
-        self.MASS_DP = df_BHA[df_BHA["BHA Type"] == "DP"]["Mass (lbs)"].iloc[0]*self.N_DP
-        self.DP_OD = np.ones(self.N_DP)*df_BHA[df_BHA["BHA Type"] == "DP"]["OD (in)"].iloc[0]
-        self.DP_ID = np.ones(self.N_DP)*df_BHA[df_BHA["BHA Type"] == "DP"]["ID (in)"].iloc[0]
-        self.L_DP_ARRAY = np.ones(self.N_DP)*self.L_DP
-        self.DP_MASS_ARRAY = np.ones(self.N_DP)*(self.MASS_DP/self.N_DP)
+        self.N_DP = round(self.N_DP)        
+        self.DP_OD = np.ones(self.N_DP) * df_BHA["OD (in)"].iloc[0]  
+        self.DP_ID = np.ones(self.N_DP) * df_BHA["ID (in)"].iloc[0]  
+        self.DP_MASS_ARRAY = np.ones(self.N_DP) * df_BHA["Mass (lbs)"].iloc[0]  
+        self.L_DP_ARRAY = np.ones(self.N_DP) * self.L_DP
+
+        # Collars / BHA:
+        self.COLLAR_LEN = np.array(np.repeat(df_BHA["Length (ft)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
+        self.COLLAR_MASS = np.array(np.repeat(df_BHA["Mass (lbs)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
+        self.COLLAR_OD = np.array(np.repeat(df_BHA["OD (in)"], df_BHA["Number of Items"]))
+        self.COLLAR_ID = np.array(np.repeat(df_BHA["ID (in)"], df_BHA["Number of Items"])) 
 
         # Concatenation
         self.global_mass_array = np.concatenate([self.DP_MASS_ARRAY, self.COLLAR_MASS])
