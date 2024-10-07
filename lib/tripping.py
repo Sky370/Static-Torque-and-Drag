@@ -4,7 +4,7 @@ from scipy.integrate import solve_ivp
 import numpy as np
 
 
-def trip_operation(F_b, flowrate, length, operation):
+def trip_operation(F_b, flowrate, length, operation, fric_mult, fluid_mult):
     clc = Calculations(lengths=length)
     fluid_force = circl(flowrate, length) if flowrate != 0 else np.zeros_like(clc.MD[:-1])
     def dFds(s, F):
@@ -21,11 +21,11 @@ def trip_operation(F_b, flowrate, length, operation):
         w_c = np.sqrt((F * DLS_interp + bw_pipe_interp * n_z_interp)**2 + (bw_pipe_interp * b_z_interp)**2)
 
         if operation == 'POOH':
-            return -(bw_pipe_interp*t_z_interp + clc.ff*w_c + fluid_interp)
+            return -(bw_pipe_interp*t_z_interp + fric_mult*clc.ff*w_c + fluid_mult*fluid_interp)
         elif operation == 'RIH':
-            return -(bw_pipe_interp*t_z_interp - clc.ff*w_c + fluid_interp)
+            return -(bw_pipe_interp*t_z_interp - fric_mult*clc.ff*w_c + fluid_mult*fluid_interp)
         elif operation == 'ROB':
-            return -(bw_pipe_interp*t_z_interp + fluid_interp)
+            return -(bw_pipe_interp*t_z_interp + fluid_mult*fluid_interp)
         else:
             raise ValueError("Unknown operation type specified.")
 
