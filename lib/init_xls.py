@@ -15,6 +15,7 @@ df_dict = pd.read_excel(input_excel_path, sheet_name=sheet_names)
 df_BHA = df_dict["BHA"]
 df_ADV = df_dict["ADVANCED"]
 df_SRV = df_dict["SURVEY"]
+df_TOP = df_dict["TOP_DRIVE"]
 
 def nearestLength(a, b):
     """
