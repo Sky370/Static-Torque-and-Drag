@@ -12,8 +12,10 @@ class Calculations:
         self.pipe_density = float(df_ADV[df_ADV["Parameter"] == "Steel Density"]["Value"]) # ppg
         self.visc_p = float(df_ADV[df_ADV["Parameter"] == "Plastic Viscosity"]["Value"]) # cP
         self.tao_y = float(df_ADV[df_ADV["Parameter"] == "Yield Point"]["Value"]) # lbf/100ft2
-        self.ff = float(df_ADV[df_ADV["Parameter"] == "Friction Factor"]["Value"])
         self.bf = float((1-self.mud_density_ppg/self.pipe_density))
+        self.mu_s = float(df_ADV[df_ADV["Parameter"] == "Static Friction Factor"]["Value"])     # Static Fric. 
+        self.mu_d = float(df_ADV[df_ADV["Parameter"] == "Dynamic Friction Factor"]["Value"])    # Dynamic Fric.
+        self.E = float(df_ADV[df_ADV["Parameter"] == "Young Modulus"]["Value"])                 # Young Modulus
 
         # Drill pipes:
         self.dp_length = self.bit_depth - df_BHA["Total Length (ft)"].iloc[0]
@@ -33,7 +35,8 @@ class Calculations:
         # Bottom hole
         self.HOLE_OD = df_ADV[df_ADV["Parameter"] == "Hole Diameter"]["Value"].iloc[0]
         self.HOLE_DEPTH = df_ADV[df_ADV["Parameter"] == "Hole Depth"]["Value"].iloc[0]
-        self.HOLE_ARRAY = np.ones(self.N_DP + len(self.COLLAR_ID))*self.HOLE_OD
+        self.noe = self.N_DP + len(self.COLLAR_OD)
+        self.HOLE_ARRAY = np.ones(self.noe)*self.HOLE_OD
         self.HOLE_LENGTH = self.HOLE_DEPTH - self.bit_depth
         self.N_HOLE, self.L_HOLE = nearestLength(self.HOLE_LENGTH, self.elem_length)
         self.N_HOLE = round(self.N_HOLE)
@@ -52,6 +55,12 @@ class Calculations:
         self.global_od_array = np.concatenate([self.DP_OD, self.COLLAR_OD])
         self.global_id_array = np.concatenate([self.DP_ID, self.COLLAR_ID])
         self.global_eps = (self.global_hole_array/self.global_od_array) - 1
+        
+        # Area calculation
+        self.A_i = np.pi/4*(self.global_id_array)**2                                    # Inner area of the pipe
+        self.A_o = np.pi/4*(self.global_od_array)**2                                    # Outer area of the pipe
+        self.A_cross = np.pi/4*(self.global_od_array**2-self.global_id_array**2)        # Cross-sectional area of the pipe
+        self.A_h = np.pi/4*(self.global_hole_array**2-self.global_od_array**2)          # Annular flow area between the wellbore and the pipe
 
         # Build and Turn rates calculation
         self.bw_pipe = self.bf*self.global_mass_array/self.global_length_array
@@ -107,3 +116,6 @@ class Calculations:
         # Velocity definition
         self.v1 = float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 1 (ft/min)"]["Value"]) / 60
         self.v2 = float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 2 (ft/min)"]["Value"]) / 60
+
+        # Time Array
+        self.time_val = float(df_TOP[df_TOP["Parameter"] == "Run Time"]["Value"])
