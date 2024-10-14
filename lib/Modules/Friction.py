@@ -1,8 +1,7 @@
-from lib.constants import Calculations as clc
 import numpy as np
 
 
-def Friction(z, v, theta, omega, Forcing_F, Forcing_T, static_check_prev, p, fric_mod):
+def Friction(z, v, theta, omega, Forcing_F, Forcing_T, static_check_prev, constants, fric_mod):
     """
     Friction model of the system
     =============================
@@ -39,6 +38,7 @@ def Friction(z, v, theta, omega, Forcing_F, Forcing_T, static_check_prev, p, fri
         Friction_torque
 
     """
+    clc = constants
     Normal_force = clc.Normal_force
     ca_array = clc.global_ca_array
     KA_top_s = clc.global_ka_matrix

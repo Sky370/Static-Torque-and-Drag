@@ -54,5 +54,5 @@ def survey_mod(df, MD, bf, mass, g):
     theta_inclination = y_interp(MD)
     theta_azimuth = z_interp(MD)
     # Inclination Angle in rad, not in 'deg'
-    Normal_force = bf * mass * g * (np.sin(theta_inclination))
+    Normal_force = bf * mass * g * (np.sin((theta_inclination[:-1] + theta_inclination[1:])/2))
     return theta_inclination, theta_azimuth, Normal_force

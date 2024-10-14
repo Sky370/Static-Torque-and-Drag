@@ -1,11 +1,10 @@
 import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
-from lib.constants import Calculations as clc
 from lib.topdrive import topdrive as top_drive_input
 
 
-def visualize_vel(time_arr, sol_arr, noe, p, path, fric_mod):
+def visualize_vel(time_arr, sol_arr, noe, p, constant, path, fric_mod):
 
     subplot_titles = [
         "Axial Velocities (m/hr)",
@@ -26,7 +25,7 @@ def visualize_vel(time_arr, sol_arr, noe, p, path, fric_mod):
     store["z_topdrive"] = np.zeros(len(time_arr))
     store["theta_topdrive"] = np.zeros(len(time_arr))
     for i, t in enumerate(time_arr):
-        qq1, qq2, qq3, qq4 = top_drive_input(t, p)
+        qq1, qq2, qq3, qq4 = top_drive_input(t, constant)
         store["ROP_topdrive"][i] = qq1
         store["RPM_topdrive"][i] = qq2
         store["z_topdrive"][i] = qq3
@@ -61,10 +60,10 @@ def visualize_vel(time_arr, sol_arr, noe, p, path, fric_mod):
     )
 
     surf_weight = (
-        clc.ka[0] * (store["z_topdrive"] - sol_arr[0 * 4 + 0]) * (1 / 4.45)
+        constant.ka[0] * (store["z_topdrive"] - sol_arr[0 * 4 + 0]) * (1 / 4.45)
     )
     surf_torque = (
-        clc.kt[0] * (store["theta_topdrive"] - sol_arr[0 * 4 + 2])
+        constant.kt[0] * (store["theta_topdrive"] - sol_arr[0 * 4 + 2])
         * (1 / (4.45 * 12 * 0.0254))
     )
 
@@ -101,7 +100,7 @@ def visualize_vel(time_arr, sol_arr, noe, p, path, fric_mod):
     )
     bit_axial_depth = go.Scatter(
         x=time_arr,
-        y=sol_arr[-4] + clc.bit_depth,
+        y=sol_arr[-4] + constant.bit_depth,
         name="Bit Depth (m)",
         mode="lines",
     )

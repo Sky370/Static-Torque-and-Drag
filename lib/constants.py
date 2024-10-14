@@ -146,15 +146,15 @@ class Calculations:
         self.kt = self.G * (np.pi / 32 * (self.global_od_array**4 - self.global_id_array** 4)) / self.global_length_array       # Torsional stiff. [imperial]
 
         self.DIA_EQ = (27*self.global_od_array + 3*self.TJ_OD) / 30     # in
-        AXIAL_VEL_MULTIPLIER = self.global_od_array**2 / (self.global_hole_array**2 - self.global_od_array**2)    # Accounting for mud velocity drag effects along axial direction
+        AXIAL_VEL_MULTIPLIER = self.global_od_array**2 / (self.HOLE_ARRAY**2 - self.global_od_array**2)    # Accounting for mud velocity drag effects along axial direction
         DOC_SS = ROP_SS / RPM_SS * 12 / 60  # in/rev
         # units of CCS of formation in ksi
         # units of k_CCS are in '1/ksi'
         MU_ROCK = -0.349 * np.log(self.ccs) + 2.0436
         # mu_rock = -0.0201 * CCS + 1.5333
         # coefficient of friction for different rock-strength
-        self.K_WOB = 0.8 * (self.ccs*0.5) * WOB_SS / DOC_SS * (self.global_hole_array / 12.25)      # units of k_WOB are in (lbf-rev)/(in)
-        self.K_TQ = MU_ROCK / 3 * (self.K_WOB / 0.8) * (self.global_hole_array)                     # units of k_TQ are in (lbf-rev)
+        self.K_WOB = 0.8 * (self.ccs*0.5) * WOB_SS / DOC_SS * (self.HOLE_ARRAY[0] / 12.25)      # units of k_WOB are in (lbf-rev)/(in)
+        self.K_TQ = MU_ROCK / 3 * (self.K_WOB / 0.8) * (self.HOLE_ARRAY[0])                     # units of k_TQ are in (lbf-rev)
 
         self.CA_BOREHOLE = self.CT_BOREHOLE * (12/60) * (ROP_SS * AXIAL_VEL_MULTIPLIER / (RPM_SS * self.DIA_EQ * np.pi))
         self.global_ct_array = np.where(self.global_length_array == 0, 0, self.CT_BOREHOLE / self.global_length_array)

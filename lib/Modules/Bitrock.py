@@ -1,7 +1,6 @@
-from lib.constants import Calculations as clc
 import numpy as np
 
-def bit_rock(z, theta, p):
+def bit_rock(z, theta, p, constants):
     """
     Bit-rock interaction model developed by Rajat Dixit and Paul Pastusek.
     The function also stores hole depths and bit depths during the analysis.
@@ -25,7 +24,7 @@ def bit_rock(z, theta, p):
     hole_depth_prev = p['HOLE_DEPTH_PREV'][-1]
 
     del_theta = theta - theta_prev
-    bit_depth = z + clc.bit_depth
+    bit_depth = z + constants.bit_depth
     if bit_depth > hole_depth_prev:
         doc = bit_depth - hole_depth_prev
     else:

@@ -1,10 +1,10 @@
-from lib.constants import Calculations as clc
+from lib.constants import Calculations
 from lib.topdrive import topdrive
 from lib.Modules.Friction import Friction
 from lib.Modules.Bitrock import bit_rock as bit_rock
 import numpy as np
 
-def Main_Func(t, x, p, fric_mod):
+def Main_Func(t, x, constants, p, fric_mod):
 
     """
     This function has the lumped spring mass damper dynamic equations in axial and torsional directions
@@ -28,7 +28,7 @@ def Main_Func(t, x, p, fric_mod):
         global dof_dot vector : [z_dot, v_dot, theta_dot, omega_dot]*noe
 
     """
-    
+    clc = constants
     MK_top_s = clc.global_mass_inv_ka_matrix
     m_inv_array = 1/clc.global_mass_array
     mca_array = clc.global_ca_array/clc.global_mass_array
@@ -53,14 +53,14 @@ def Main_Func(t, x, p, fric_mod):
     v = x[1::4]
     theta = x[2::4] - mm_omega * t
     omega = x[3::4] - mm_omega
-    doc = bit_rock(z[-1], theta[-1], p)
+    doc = bit_rock(z[-1], theta[-1], p, clc)
 
     Forcing_F[-1] = -clc.K_WOB * doc  # - c_bit_axial * v[-1] * abs(np.sign(doc))
     Forcing_T[-1] = -clc.K_TQ * doc
 
     
     Friction_force, Friction_torque, p['STATIC_CHECK_PREV'], new_fric_force = Friction(
-        z, v, theta, omega, Forcing_F, Forcing_T, p['STATIC_CHECK_PREV'], p, fric_mod
+        z, v, theta, omega, Forcing_F, Forcing_T, p['STATIC_CHECK_PREV'], clc, fric_mod
     )
 
     # store weight , torque , depth of cut and solution time

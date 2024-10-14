@@ -1,4 +1,4 @@
-from lib.constants import Calculations as clc
+from lib.constants import Calculations
 from lib.solver import Main_Func
 from lib.visualize import visualize_vel
 from lib.init_xls import outputFolderPath
@@ -8,7 +8,7 @@ from scipy.integrate import solve_ivp
 def simulation(depth, fric_mod):
     # Normal Force Calculation
     P = {}
-    clc(depth)
+    clc = Calculations(depth)
     
     # Forces = np.zeros(clc.noe)
     # for i in range(clc.noe-1, 1, -1)
@@ -31,7 +31,7 @@ def simulation(depth, fric_mod):
     P['new_force'] = []
 
     sol = solve_ivp(
-        lambda t, x: Main_Func(t, x, P, fric_mod),
+        lambda t, x: Main_Func(t, x, clc, P, fric_mod),
         [0, clc.time_val],
         np.zeros(4 * clc.noe),
         max_step=0.001,
@@ -46,4 +46,4 @@ def simulation(depth, fric_mod):
     P['TIME_ARRAY'] = time_arr
     P['SOLUTION_MAIN_ARRAY'] = sol_arr
 
-    visualize_vel(time_arr, sol_arr, clc.noe, P, outputFolderPath, fric_mod)
+    visualize_vel(time_arr, sol_arr, clc.noe, P, clc, outputFolderPath, fric_mod)
