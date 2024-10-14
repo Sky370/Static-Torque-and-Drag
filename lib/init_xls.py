@@ -8,13 +8,15 @@ outputFolderPath = os.path.join(THIS_FOLDER, 'Output')
 input_excel_path = os.path.join(THIS_FOLDER, 'Input/NewData.xlsx')
 
 # Import the data
-sheet_names = ["BHA", "ADVANCED", "SURVEY"]
+sheet_names = ["BHA", "ADVANCED", "SURVEY", "TOP_DRIVE", "Borehole_Properties", "steady_state_inputs"]
 df_dict = pd.read_excel(input_excel_path, sheet_name=sheet_names)
 
 df_BHA = df_dict["BHA"]
 df_ADV = df_dict["ADVANCED"]
 df_SRV = df_dict["SURVEY"]
 df_TOP = df_dict["TOP_DRIVE"]
+df_WELL = df_dict["Borehole_Properties"]
+df_SS = df_dict["steady_state_inputs"]
 
 def nearestLength(a, b):
     """
@@ -43,7 +45,7 @@ def nearestLength(a, b):
     dict_var[val]
     return a / dict_var[val], dict_var[val]
 
-def survey_mod(df, MD):
+def survey_mod(df, MD, bf, mass, g):
     x = np.array(df["MD"].values)
     y = np.array(df["INC"].values)
     z = np.array(df["AZI"].values)
@@ -52,4 +54,5 @@ def survey_mod(df, MD):
     theta_inclination = y_interp(MD)
     theta_azimuth = z_interp(MD)
     # Inclination Angle in rad, not in 'deg'
-    return theta_inclination, theta_azimuth
+    Normal_force = bf * mass * g * (np.sin(theta_inclination))
+    return theta_inclination, theta_azimuth, Normal_force
