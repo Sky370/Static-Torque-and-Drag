@@ -73,7 +73,7 @@ def Friction(z, v, theta, omega, Forcing_F, Forcing_T, static_check_prev, consta
     comp_a = np.divide(v, resultant_vel, out=np.zeros_like(v), where=(resultant_vel!=0))
     comp_t = np.divide(v_tan, resultant_vel, out=np.zeros_like(v_tan), where=(resultant_vel!=0))
     
-    if fric_mod == 'Stribeck':
+    if fric_mod.lower() == 'stribeck':
         # Update static checks
         static_check_prev[resultant_vel < 1e-06] = 0
         static_check_prev[Fd_resultant > Friction_limit] = 1    
@@ -89,11 +89,11 @@ def Friction(z, v, theta, omega, Forcing_F, Forcing_T, static_check_prev, consta
 
         out = (Friction_force, Friction_torque, static_check_prev, Friction_torque/radius)
     
-    elif fric_mod == 'Coulomb':
+    elif fric_mod.lower() == 'coulomb':
         # Update static check based on velocities
         static_check_prev[resultant_vel < epsilon] = 0
         static_check_prev[(resultant_vel >= epsilon) & (resultant_vel < clc.v_cs)] = 1
-        static_check_prev[resultant_vel >= clc.v_cs] = 2
+        static_check_prev[resultant_vel >= clc.v_cs] = 1
 
         # Combined calculation of friction force
         Friction_force = np.where(

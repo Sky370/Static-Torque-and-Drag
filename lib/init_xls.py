@@ -54,5 +54,21 @@ def survey_mod(df, MD, bf, mass, g):
     theta_inclination = y_interp(MD)
     theta_azimuth = z_interp(MD)
     # Inclination Angle in rad, not in 'deg'
-    Normal_force = bf * mass * g * (np.sin((theta_inclination[:-1] + theta_inclination[1:])/2))
+    Normal_force = bf * mass * g * np.sin(np.deg2rad((theta_inclination[:-1] + theta_inclination[1:])/2))
     return theta_inclination, theta_azimuth, Normal_force
+
+# Unit conversion [imperial-metric]
+ft2m = lambda ft: ft * 0.3048
+in2m = lambda inch: inch * 0.0254
+ft_min2ms = lambda f: f * 0.3048 / 60
+ft_hr2ms = lambda f: f * 0.3048 / 3600
+ppg2kgm = lambda rho: rho * 119.8264273167
+psi2Pa = lambda psi: psi * 0.4788
+cp2Pas = lambda viscosity: viscosity/1000
+GPM2ms = lambda flowrate: flowrate / (264.172 * 60)
+lbs2kg = lambda lbs: lbs * 0.45359237
+lbf2N = lambda lbf: lbf * 4.44822
+
+# Unit conversion [metric-imperial]
+m2ft = lambda m: m / 0.3048
+m2in = lambda m: m / 0.0254

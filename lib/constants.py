@@ -6,21 +6,21 @@ warnings.filterwarnings('ignore')
 class Calculations:
     def __init__(self, depth):
         # Field units
-        self.gravity = 32.1740  # ft/s²
-        self.bit_depth = depth # ft
-        self.elem_length = df_BHA[df_BHA["BHA Type"] == "DP"]["Length (ft)"].iloc[0] # ft
-        self.mud_density_ppg = float(df_WELL[df_WELL["Parameter"] == "Mud Density"]["Value"]) # ppg
-        self.pipe_density = float(df_WELL[df_WELL["Parameter"] == "Steel Density"]["Value"]) # ppg
-        self.visc_p = float(df_WELL[df_WELL["Parameter"] == "Plastic Viscosity"]["Value"]) # cP
-        self.tao_y = float(df_WELL[df_WELL["Parameter"] == "Yield Point"]["Value"]) # lbf/100ft2
+        self.g = ft2m(32.1740)  # ft/s² to m/s²
+        self.bit_depth = ft2m(depth) # ft to m
+        self.elem_length = ft2m(df_BHA[df_BHA["BHA Type"] == "DP"]["Length (ft)"].iloc[0])              # ft to m
+        self.mud_density_ppg = ppg2kgm(float(df_WELL[df_WELL["Parameter"] == "Mud Density"]["Value"]))  # ppg to kg/m3
+        self.pipe_density = ppg2kgm(float(df_WELL[df_WELL["Parameter"] == "Steel Density"]["Value"]))   # ppg to kg/m3
+        self.visc_p = cp2Pas(float(df_WELL[df_WELL["Parameter"] == "Plastic Viscosity"]["Value"]))      # cP to Pa.s 
+        self.tao_y = psi2Pa(float(df_WELL[df_WELL["Parameter"] == "Yield Point"]["Value"]))             # lbf/100ft2 to Pa
         self.bf = float((1-self.mud_density_ppg/self.pipe_density))
-        self.mu_s = float(df_WELL[df_WELL["Parameter"] == "Static Friction Factor"]["Value"])     # Static Fric. 
-        self.mu_d = float(df_WELL[df_WELL["Parameter"] == "Dynamic Friction Factor"]["Value"])    # Dynamic Fric.
-        self.E = float(df_ADV[df_ADV["Parameter"] == "Young Modulus"]["Value"])                   # Young Modulus
-        self.G = float(df_ADV[df_ADV["Parameter"] == "Bulk Modulus"]["Value"])                    # Torsional Modulus
-        self.ccs = float(df_ADV[df_ADV["Parameter"] == "CCS"]["Value"])                           # Psi
-        self.v_cs = float(df_WELL[df_WELL["Parameter"] == "Stribeck Critical Velocity"]["Value"]) # ft/s
-        self.CT_BOREHOLE = float(df_WELL[df_WELL["Parameter"] == "Torsional Drag Coefficient"]["Value"])
+        self.mu_s = float(df_WELL[df_WELL["Parameter"] == "Static Friction Factor"]["Value"])           # Static Fric. 
+        self.mu_d = float(df_WELL[df_WELL["Parameter"] == "Dynamic Friction Factor"]["Value"])          # Dynamic Fric.
+        self.E = float(df_ADV[df_ADV["Parameter"] == "Young Modulus"]["Value"])                         # Young Modulus
+        self.G = float(df_ADV[df_ADV["Parameter"] == "Bulk Modulus"]["Value"])                          # Torsional Modulus
+        self.ccs = float(df_ADV[df_ADV["Parameter"] == "CCS"]["Value"])                                 # ksi
+        self.v_cs = float(df_WELL[df_WELL["Parameter"] == "Stribeck Critical Velocity"]["Value"])       # m/s
+        self.CT_BOREHOLE = float(df_WELL[df_WELL["Parameter"] == "Torsional Drag Coefficient"]["Value"])    # N sec/m
 
         # Time intervals definition
         self.a1 = float(df_TOP[df_TOP["Parameter"] == "a1"]["Value"])
@@ -37,22 +37,22 @@ class Calculations:
         self.b6 = float(df_TOP[df_TOP["Parameter"] == "b6"]["Value"])
         
         # Velocity definition
-        self.v1 = float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 1 (ft/min)"]["Value"]) / 60
-        self.v2 = float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 2 (ft/min)"]["Value"]) / 60
-        self.rpm1 = float(df_TOP[df_TOP["Parameter"] == "Top Drive RPM Magnitude 1 (RPM)"]["Value"]) / 60
-        self.rpm2 = float(df_TOP[df_TOP["Parameter"] == "Top Drive RPM Magnitude 2 (RPM)"]["Value"]) / 60
+        self.v1 = ft_min2ms(float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 1 (ft/min)"]["Value"]))     # ft/min to m/s
+        self.v2 = ft_min2ms(float(df_TOP[df_TOP["Parameter"] == "Top Drive Axial Velocity Magnitude 2 (ft/min)"]["Value"]))     # ft/min to m/s
+        self.rpm1 = float(df_TOP[df_TOP["Parameter"] == "Top Drive RPM Magnitude 1 (RPM)"]["Value"])                            # rev/min
+        self.rpm2 = float(df_TOP[df_TOP["Parameter"] == "Top Drive RPM Magnitude 2 (RPM)"]["Value"])                            # rev/min
 
         # Time array
-        self.time_val = float(df_ADV[df_ADV["Parameter"] == "Run Time"]["Value"])
+        self.time_val = float(df_ADV[df_ADV["Parameter"] == "Run Time"]["Value"])   # seconds
 
         # Extra
         # --------- Load steady state inputs -------- #
-        WOB_SS = float(df_SS[df_SS["Parameter"] == "WOB initial"]["Value"])        # lbs
-        ROP_SS = float(df_SS[df_SS["Parameter"] == "ROP steady state"]["Value"])   # ft/hr
-        RPM_SS = float(df_SS[df_SS["Parameter"] == "RPM steady state"]["Value"])   
+        WOB_SS = float(df_SS[df_SS["Parameter"] == "WOB initial"]["Value"])                 # lbs
+        ROP_SS = float(df_SS[df_SS["Parameter"] == "ROP steady state"]["Value"]) / 3600       # m/hr to m/s
+        RPM_SS = float(df_SS[df_SS["Parameter"] == "RPM steady state"]["Value"]) / 60       # rev/min to rev/s  
 
         # Drill pipes:
-        self.dp_length = self.bit_depth - df_BHA["Total Length (ft)"].iloc[0]
+        self.dp_length = self.bit_depth - ft2m(df_BHA["Total Length (ft)"].iloc[0])
         self.N_DP, self.L_DP = nearestLength(self.dp_length, self.elem_length)
         self.N_DP = round(self.N_DP)        
         self.DP_OD = np.ones(self.N_DP) * df_BHA["OD (in)"].iloc[0]  
@@ -68,10 +68,10 @@ class Calculations:
         self.COLLAR_ID = np.array(np.repeat(df_BHA["ID (in)"], df_BHA["Number of Items"])) 
 
         # Bottom hole
-        self.HOLE_OD = df_ADV[df_ADV["Parameter"] == "Hole Diameter"]["Value"].iloc[0]
-        self.HOLE_DEPTH = df_ADV[df_ADV["Parameter"] == "Hole Depth"]["Value"].iloc[0]
+        self.HOLE_OD = in2m(df_ADV[df_ADV["Parameter"] == "Hole Diameter"]["Value"].iloc[0])    # inch to m
+        self.HOLE_DEPTH = ft2m(df_ADV[df_ADV["Parameter"] == "Hole Depth"]["Value"].iloc[0])    # ft to m
         self.noe = self.N_DP + len(self.COLLAR_OD)
-        self.HOLE_ARRAY = np.ones(self.noe)*self.HOLE_OD
+        self.HOLE_ARRAY = np.ones(self.noe)*self.HOLE_OD                                        # inch to m
         self.HOLE_LENGTH = self.HOLE_DEPTH - self.bit_depth
         self.N_HOLE, self.L_HOLE = nearestLength(self.HOLE_LENGTH, self.elem_length)
         self.N_HOLE = round(self.N_HOLE)
@@ -85,22 +85,22 @@ class Calculations:
             self.global_hole_array = self.HOLE_ARRAY
         
         # Concatenation
-        self.global_mass_array = np.concatenate([self.DP_MASS_ARRAY, self.COLLAR_MASS])
-        self.global_length_array = np.concatenate([self.L_DP_ARRAY, self.COLLAR_LEN])
-        self.global_od_array = np.concatenate([self.DP_OD, self.COLLAR_OD])
-        self.global_id_array = np.concatenate([self.DP_ID, self.COLLAR_ID])
+        self.global_mass_array = lbs2kg(np.concatenate([self.DP_MASS_ARRAY, self.COLLAR_MASS]))     # Final conversion from lbs to kg
+        self.global_length_array = np.concatenate([self.L_DP_ARRAY, ft2m(self.COLLAR_LEN)])         # ft to m
+        self.global_od_array = in2m(np.concatenate([self.DP_OD, self.COLLAR_OD]))                   # inch to m
+        self.global_id_array = in2m(np.concatenate([self.DP_ID, self.COLLAR_ID]))                   # inch to m
         self.global_eps = (self.HOLE_ARRAY/self.global_od_array) - 1
         
         # Area calculation
         self.A_i = np.pi/4*(self.global_id_array)**2                                    # Inner area of the pipe
         self.A_o = np.pi/4*(self.global_od_array)**2                                    # Outer area of the pipe
         self.A_cross = np.pi/4*(self.global_od_array**2-self.global_id_array**2)        # Cross-sectional area of the pipe
-        self.A_h = np.pi/4*(self.HOLE_ARRAY**2-self.global_od_array**2)          # Annular flow area between the wellbore and the pipe
+        self.A_h = np.pi/4*(self.HOLE_ARRAY**2-self.global_od_array**2)                 # Annular flow area between the wellbore and the pipe
 
         # Build and Turn rates calculation
         self.bw_pipe = self.bf*self.global_mass_array/self.global_length_array
         self.MD = np.insert(np.cumsum(self.global_length_array), 0, 0)
-        self.inc, self.azi, self.Normal_force = survey_mod(df_SRV, self.MD, self.bf, self.global_mass_array, self.gravity)
+        self.inc, self.azi, self.Normal_force = survey_mod(df_SRV, m2ft(self.MD), self.bf, self.global_mass_array, self.g)
         self.inc_rad = np.deg2rad(self.inc)
         self.azi_rad = np.deg2rad(self.azi)
 
@@ -145,18 +145,20 @@ class Calculations:
         self.ka = self.E * self.A_cross / self.global_length_array                                                              # Axial stiffness [imperial]
         self.kt = self.G * (np.pi / 32 * (self.global_od_array**4 - self.global_id_array** 4)) / self.global_length_array       # Torsional stiff. [imperial]
 
-        self.DIA_EQ = (27*self.global_od_array + 3*self.TJ_OD) / 30     # in
-        AXIAL_VEL_MULTIPLIER = self.global_od_array**2 / (self.HOLE_ARRAY**2 - self.global_od_array**2)    # Accounting for mud velocity drag effects along axial direction
-        DOC_SS = ROP_SS / RPM_SS * 12 / 60  # in/rev
+        self.DIA_EQ = (27*self.global_od_array + 3*in2m(self.TJ_OD)) / 30     # in to m
+        AXIAL_VEL_MULTIPLIER = self.global_od_array**2 / (self.HOLE_OD**2 - self.global_od_array**2)    # Accounting for mud velocity drag effects along axial direction
+        DOC_SS = ROP_SS / RPM_SS   # m/rev
         # units of CCS of formation in ksi
         # units of k_CCS are in '1/ksi'
         MU_ROCK = -0.349 * np.log(self.ccs) + 2.0436
         # mu_rock = -0.0201 * CCS + 1.5333
         # coefficient of friction for different rock-strength
-        self.K_WOB = 0.8 * (self.ccs*0.5) * WOB_SS / DOC_SS * (self.HOLE_ARRAY[0] / 12.25)      # units of k_WOB are in (lbf-rev)/(in)
-        self.K_TQ = MU_ROCK / 3 * (self.K_WOB / 0.8) * (self.HOLE_ARRAY[0])                     # units of k_TQ are in (lbf-rev)
+        self.K_WOB = 0.8 * (self.ccs*0.5) * lbf2N(WOB_SS) / DOC_SS * (m2in(self.HOLE_OD) / 12.25)    # units of k_WOB are in (N-rev)/(m)
+        self.K_TQ = MU_ROCK / 3 * (self.K_WOB / 0.8) * self.HOLE_OD                            # units of k_TQ are in (N-rev)
 
-        self.CA_BOREHOLE = self.CT_BOREHOLE * (12/60) * (ROP_SS * AXIAL_VEL_MULTIPLIER / (RPM_SS * self.DIA_EQ * np.pi))
+        self.CA_BOREHOLE = self.CT_BOREHOLE * (
+        (ROP_SS * AXIAL_VEL_MULTIPLIER) / (RPM_SS) / (self.DIA_EQ * np.pi)
+        )
         self.global_ct_array = np.where(self.global_length_array == 0, 0, self.CT_BOREHOLE / self.global_length_array)
         self.global_ca_array = np.where(self.global_length_array == 0, 0, self.CA_BOREHOLE / self.global_length_array)
         

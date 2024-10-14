@@ -16,8 +16,8 @@ def topdrive(t, constants):
     # Axial and rotational velocities
     v1 = constants.v1
     v2 = constants.v2
-    RPM1 = constants.rpm1
-    RPM2 = constants.rpm2
+    RPM1 = constants.rpm1 * (2*np.pi/60)
+    RPM2 = constants.rpm2 * (2*np.pi/60)
 
     if 0 <= t < a1:
         ROP_topdrive = ((v1 / a1)) * t

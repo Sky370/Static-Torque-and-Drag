@@ -1,5 +1,6 @@
-from lib.constants import Calculations
 from lib.topdrive import topdrive
+from lib.Modules.Coulomb import Coulomb_Friction
+from lib.Modules.Stribeck import Stribeck_friction
 from lib.Modules.Friction import Friction
 from lib.Modules.Bitrock import bit_rock as bit_rock
 import numpy as np
@@ -44,6 +45,9 @@ def Main_Func(t, x, constants, p, fric_mod):
     Forcing_F[0] = clc.ka[0] * z_top_drive
     Forcing_T[0] = clc.kt[0] * theta_top_drive
 
+    # Checkpoint for debugging
+    checkpoint = float(np.round(t, 2))
+    
     mm_omega = np.zeros(clc.noe)
     # if motor_elem != "N":
     #     motor_speed = 2 * np.pi * p[MOTOR_RPG] * p[MOTOR_FLOW_RATE]*(1/60)
@@ -58,10 +62,18 @@ def Main_Func(t, x, constants, p, fric_mod):
     Forcing_F[-1] = -clc.K_WOB * doc  # - c_bit_axial * v[-1] * abs(np.sign(doc))
     Forcing_T[-1] = -clc.K_TQ * doc
 
-    
     Friction_force, Friction_torque, p['STATIC_CHECK_PREV'], new_fric_force = Friction(
         z, v, theta, omega, Forcing_F, Forcing_T, p['STATIC_CHECK_PREV'], clc, fric_mod
     )
+    
+    # if fric_mod.lower() == "stribeck":
+    #     Friction_force, Friction_torque, p['STATIC_CHECK_PREV'], new_fric_force = Stribeck_friction(
+    #         z, v, theta, omega, Forcing_F, Forcing_T, p['STATIC_CHECK_PREV'], clc
+    #     )
+    # elif fric_mod.lower() == "coulomb":
+    #     Friction_force, Friction_torque, p['STATIC_CHECK_PREV'], new_fric_force = Coulomb_Friction(
+    #         z, v, theta, omega, Forcing_F, Forcing_T, p['STATIC_CHECK_PREV'], clc
+    #     )
 
     # store weight , torque , depth of cut and solution time
     # TODO: Dense outputs needn't require storing solution time
