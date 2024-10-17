@@ -113,14 +113,14 @@ class Calculations:
         if np.any(hwdp_mask):
             hwdp_ka = 1 / np.sum(1 / self.ka[hwdp_mask])        # Combined axial stiffness
             hwdp_kt = 1 / np.sum(1 / self.kt[hwdp_mask])        # Combined torsional stiffness
-            self.ka[hwdp_mask] = hwdp_ka  
-            self.kt[hwdp_mask] = hwdp_kt 
+            self.ka[hwdp_mask] = hwdp_ka * len(self.BHA_TYPES[self.BHA_TYPES == "HWDP"]) 
+            self.kt[hwdp_mask] = hwdp_kt * len(self.BHA_TYPES[self.BHA_TYPES == "HWDP"]) 
 
         if np.any(collar_mask):
             collar_ka = 1 / np.sum(1 / self.ka[collar_mask])    # Combined axial stiffness
             collar_kt = 1 / np.sum(1 / self.kt[collar_mask])    # Combined torsional stiffness
-            self.ka[collar_mask] = collar_ka  
-            self.kt[collar_mask] = collar_kt  
+            self.ka[collar_mask] = collar_ka * len(self.BHA_TYPES[self.BHA_TYPES == "Collar"]) 
+            self.kt[collar_mask] = collar_kt * len(self.BHA_TYPES[self.BHA_TYPES == "Collar"]) 
 
         # Build and Turn rates calculation
         self.bw_pipe = self.bf*self.global_mass_array/self.global_length_array
