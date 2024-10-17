@@ -17,7 +17,7 @@ class Calculations:
         self.mu_s = float(df_WELL[df_WELL["Parameter"] == "Static Friction Factor"]["Value"])           # Static Fric. 
         self.mu_d = float(df_WELL[df_WELL["Parameter"] == "Dynamic Friction Factor"]["Value"])          # Dynamic Fric.
         self.E = float(df_ADV[df_ADV["Parameter"] == "Young Modulus"]["Value"])                         # Young Modulus
-        self.G = float(df_ADV[df_ADV["Parameter"] == "Bulk Modulus"]["Value"])                          # Torsional Modulus
+        self.G = float(df_ADV[df_ADV["Parameter"] == "Bulk Modulus"]["Value"])                          # Shear Modulus
         self.ccs = float(df_ADV[df_ADV["Parameter"] == "CCS"]["Value"])                                 # ksi
         self.v_cs = float(df_WELL[df_WELL["Parameter"] == "Stribeck Critical Velocity"]["Value"])       # m/s
         self.CT_BOREHOLE = float(df_WELL[df_WELL["Parameter"] == "Torsional Drag Coefficient"]["Value"])    # N sec/m
@@ -48,7 +48,7 @@ class Calculations:
         # Extra
         # --------- Load steady state inputs -------- #
         WOB_SS = float(df_SS[df_SS["Parameter"] == "WOB initial"]["Value"])                 # lbs
-        ROP_SS = float(df_SS[df_SS["Parameter"] == "ROP steady state"]["Value"]) / 3600       # m/hr to m/s
+        ROP_SS = float(df_SS[df_SS["Parameter"] == "ROP steady state"]["Value"]) / 3600     # m/hr to m/s
         RPM_SS = float(df_SS[df_SS["Parameter"] == "RPM steady state"]["Value"]) / 60       # rev/min to rev/s  
 
         # Drill pipes:
@@ -59,18 +59,20 @@ class Calculations:
         self.DP_ID = np.ones(self.N_DP) * df_BHA["ID (in)"].iloc[0]  
         self.DP_MASS_ARRAY = np.ones(self.N_DP) * df_BHA["Mass (lbs)"].iloc[0]  
         self.L_DP_ARRAY = np.ones(self.N_DP) * self.L_DP
+        self.DP_TYPES = np.array(["DP"]*self.N_DP)
         self.TJ_OD = df_BHA["OD Tool Joint (in)"].iloc[0]   # Tool Joint OD, in
 
-        # Collars / BHA:
-        self.COLLAR_LEN = np.array(np.repeat(df_BHA["Length (ft)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
-        self.COLLAR_MASS = np.array(np.repeat(df_BHA["Mass (lbs)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
-        self.COLLAR_OD = np.array(np.repeat(df_BHA["OD (in)"], df_BHA["Number of Items"]))
-        self.COLLAR_ID = np.array(np.repeat(df_BHA["ID (in)"], df_BHA["Number of Items"])) 
+        # BHA:
+        self.BHA_TYPES = np.array(np.repeat(df_BHA["BHA Type"], df_BHA["Number of Items"]))
+        self.BHA_LEN = np.array(np.repeat(df_BHA["Length (ft)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
+        self.BHA_MASS = np.array(np.repeat(df_BHA["Mass (lbs)"]/df_BHA["Number of Items"] , df_BHA["Number of Items"]))
+        self.BHA_OD = np.array(np.repeat(df_BHA["OD (in)"], df_BHA["Number of Items"]))
+        self.BHA_ID = np.array(np.repeat(df_BHA["ID (in)"], df_BHA["Number of Items"])) 
 
         # Bottom hole
         self.HOLE_OD = in2m(df_ADV[df_ADV["Parameter"] == "Hole Diameter"]["Value"].iloc[0])    # inch to m
         self.HOLE_DEPTH = ft2m(df_ADV[df_ADV["Parameter"] == "Hole Depth"]["Value"].iloc[0])    # ft to m
-        self.noe = self.N_DP + len(self.COLLAR_OD)
+        self.noe = self.N_DP + len(self.BHA_OD)
         self.HOLE_ARRAY = np.ones(self.noe)*self.HOLE_OD                                        # inch to m
         self.HOLE_LENGTH = self.HOLE_DEPTH - self.bit_depth
         self.N_HOLE, self.L_HOLE = nearestLength(self.HOLE_LENGTH, self.elem_length)
@@ -85,10 +87,11 @@ class Calculations:
             self.global_hole_array = self.HOLE_ARRAY
         
         # Concatenation
-        self.global_mass_array = lbs2kg(np.concatenate([self.DP_MASS_ARRAY, self.COLLAR_MASS]))     # Final conversion from lbs to kg
-        self.global_length_array = np.concatenate([self.L_DP_ARRAY, ft2m(self.COLLAR_LEN)])         # ft to m
-        self.global_od_array = in2m(np.concatenate([self.DP_OD, self.COLLAR_OD]))                   # inch to m
-        self.global_id_array = in2m(np.concatenate([self.DP_ID, self.COLLAR_ID]))                   # inch to m
+        self.global_mass_array = lbs2kg(np.concatenate([self.DP_MASS_ARRAY, self.BHA_MASS]))     # Final conversion from lbs to kg
+        self.global_length_array = np.concatenate([self.L_DP_ARRAY, ft2m(self.BHA_LEN)])         # ft to m
+        self.global_od_array = in2m(np.concatenate([self.DP_OD, self.BHA_OD]))                   # inch to m
+        self.global_id_array = in2m(np.concatenate([self.DP_ID, self.BHA_ID]))                   # inch to m
+        self.global_types = np.concatenate([self.DP_TYPES, self.BHA_TYPES])
         self.global_eps = (self.HOLE_ARRAY/self.global_od_array) - 1
         
         # Area calculation
@@ -96,6 +99,28 @@ class Calculations:
         self.A_o = np.pi/4*(self.global_od_array)**2                                    # Outer area of the pipe
         self.A_cross = np.pi/4*(self.global_od_array**2-self.global_id_array**2)        # Cross-sectional area of the pipe
         self.A_h = np.pi/4*(self.HOLE_ARRAY**2-self.global_od_array**2)                 # Annular flow area between the wellbore and the pipe
+
+        # Prelim calculations:
+        self.J = (0.5/4) * (self.global_od_array**2 + self.global_id_array** 2) * self.global_mass_array        # Moment of Inertia
+        self.J_polar = np.pi / 32 * (self.global_od_array**4 - self.global_id_array** 4)                        # Polar moment of Inertia
+        self.ka = self.E * self.A_cross / self.global_length_array                                              # Axial stiffness 
+        self.kt = self.G * self.J_polar / self.global_length_array                                              # Torsional stiffness
+
+        # Parallel stifness technique
+        hwdp_mask = self.global_types == "HWDP"            # Mask for HWDP components
+        collar_mask = self.global_types == "Collar"        # Mask for Collar components
+
+        if np.any(hwdp_mask):
+            hwdp_ka = 1 / np.sum(1 / self.ka[hwdp_mask])        # Combined axial stiffness
+            hwdp_kt = 1 / np.sum(1 / self.kt[hwdp_mask])        # Combined torsional stiffness
+            self.ka[hwdp_mask] = hwdp_ka  
+            self.kt[hwdp_mask] = hwdp_kt 
+
+        if np.any(collar_mask):
+            collar_ka = 1 / np.sum(1 / self.ka[collar_mask])    # Combined axial stiffness
+            collar_kt = 1 / np.sum(1 / self.kt[collar_mask])    # Combined torsional stiffness
+            self.ka[collar_mask] = collar_ka  
+            self.kt[collar_mask] = collar_kt  
 
         # Build and Turn rates calculation
         self.bw_pipe = self.bf*self.global_mass_array/self.global_length_array
@@ -140,11 +165,6 @@ class Calculations:
         self.b_z = np.sin(self.inc_rad[:-1])*np.sin(self.inc_rad[1:])*np.sin(self.azi_rad[1:] - self.azi_rad[:-1])/np.sin(self.betta)
         self.b_z = np.nan_to_num(self.b_z)
 
-         # Prelim calculations:
-        self.J = (0.5/4) * (self.global_od_array**2 + self.global_id_array** 2) * self.global_mass_array                        # Moment of Inertia
-        self.ka = self.E * self.A_cross / self.global_length_array                                                              # Axial stiffness [imperial]
-        self.kt = self.G * (np.pi / 32 * (self.global_od_array**4 - self.global_id_array** 4)) / self.global_length_array       # Torsional stiff. [imperial]
-
         self.DIA_EQ = (27*self.global_od_array + 3*in2m(self.TJ_OD)) / 30     # in to m
         AXIAL_VEL_MULTIPLIER = self.global_od_array**2 / (self.HOLE_OD**2 - self.global_od_array**2)    # Accounting for mud velocity drag effects along axial direction
         DOC_SS = ROP_SS / RPM_SS   # m/rev
@@ -177,6 +197,4 @@ class Calculations:
         self.global_inertia_inv_matrix = sps.diags(1 / self.J, format='csr')
         self.global_mass_inv_ka_matrix = self.global_mass_inv_matrix @ self.global_ka_matrix        # Sparse Matrix
         self.global_inertia_inv_kt_matrix = self.global_inertia_inv_matrix @ self.global_kt_matrix  # Sparse Matrix
-        # self.global_mass_inv_ca_matrix = sps.diags(1 / self.global_mass_array * self.global_ca_array, format='csr')
-        # self.global_inertia_inv_ct_matrix = sps.diags(1 / self.J * self.global_ct_array, format='csr')
         

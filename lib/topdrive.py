@@ -34,7 +34,7 @@ def topdrive(t, constants):
     elif a4 <= t < a5:
         ROP_topdrive = -(v2)
         z_top_drive = 0.5 * (a3 + a2 - a1) * v1 - 0.5 * (a4 - a3) * v2 - (t - a4) * v2
-    elif a5 <= t < a6:
+    elif a5 <= t <= a6:
         ROP_topdrive = ((v2) * (t - a6)) / (a6 - a5)
         z_top_drive = 0.5 * (a3 + a2 - a1) * v1 - 0.5 * (a6 - a3 + a5 - a4) * v2
     
@@ -55,7 +55,7 @@ def topdrive(t, constants):
     elif b4 <= t < b5:
         RPM_topdrive = -(RPM2)
         theta_top_drive = 0.5 * (b3 + b2 - b1) * RPM1 - 0.5 * (b4 - b3) * RPM2 - (t - b4) * RPM2
-    elif b5 <= t < b6:
+    elif b5 <= t <= b6:
         RPM_topdrive = ((RPM2) * (t - b6)) / (b6 - b5)
         theta_top_drive = 0.5 * (b3 + b2 - b1) * RPM1 - 0.5 * (b6 - b3 + b5 - b4) * RPM2
 
