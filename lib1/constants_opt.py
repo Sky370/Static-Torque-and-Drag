@@ -6,7 +6,7 @@ class Calculations:
     def __init__(self, lengths):
         # Field units
         self.gravity = 32.1740  # ft/s²
-        self.total_length = lengths # ft
+        self.bit_depth = lengths # ft
         self.elem_length = df_BHA[df_BHA["BHA Type"] == "DP"]["Length (ft)"].iloc[0] # ft
         self.mud_density_ppg = float(df_ADV[df_ADV["Parameter"] == "Mud Density"]["Value"]) # ppg
         self.visc_p = float(df_ADV[df_ADV["Parameter"] == "Plastic Viscosity"]["Value"]) # cP
@@ -22,7 +22,7 @@ class Calculations:
 
         # Drill pipes:
         self.dp_length1 = 4000
-        self.dp_length2 = self.total_length - self.COLLAR_LEN.sum() - self.dp_length1
+        self.dp_length2 = self.bit_depth - self.COLLAR_LEN.sum() - self.dp_length1
         self.N_DP1, self.L_DP1 = nearestLength(self.dp_length1, self.elem_length)
         self.N_DP2, self.L_DP2 = nearestLength(self.dp_length2, self.elem_length)
         self.N_DP1 = round(self.N_DP1)
@@ -41,7 +41,7 @@ class Calculations:
         # Bottom hole
         self.HOLE_OD = df_ADV[df_ADV["Parameter"] == "Hole Diameter"]["Value"].iloc[0]
         self.HOLE_DEPTH = df_ADV[df_ADV["Parameter"] == "Hole Depth"]["Value"].iloc[0]
-        self.HOLE_LENGTH = self.HOLE_DEPTH - self.total_length
+        self.HOLE_LENGTH = self.HOLE_DEPTH - self.bit_depth
         self.N_HOLE, self.L_HOLE = nearestLength(self.HOLE_LENGTH, self.elem_length)
         self.N_HOLE = round(self.N_HOLE)
         self.HOLE_ARRAY = np.ones(self.N_DP1 + self.N_DP2 + len(self.COLLAR_ID))*self.HOLE_OD
