@@ -12,7 +12,8 @@ def circl(flowrate, length):
         D_w=clc.HOLE_ARRAY,
         del_L=clc.global_length_array
     )
-    Area_o = np.pi*(clc.global_od_array**2)/4
+    # Area_o = np.pi*(clc.global_od_array**2)/4
+    Area_o = np.pi*(clc.global_hole_array[0]**2 - clc.global_od_array**2)/4
     Area_i = np.pi*(clc.global_id_array**2)/4
     C_tao_0 = (8 + 4*clc.global_eps + clc.global_eps**2)/8
 
