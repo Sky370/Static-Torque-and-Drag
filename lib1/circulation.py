@@ -2,6 +2,21 @@ from lib1.constants_opt import *
 
 def circl(flowrate, length):
     clc = Calculations(lengths=length)
+    
+    # Model for YPL fluids; Modify K and m to adjust the fluid model.
+    # Tao = Tao_0 + K*(\gamma)^m
+
+    # P_drop_inner , P_drop_outer, v_i, v_o = pres_calc(
+    #     Q=flowrate,
+    #     rho=clc.mud_density_ppg, 
+    #     m = 1,
+    #     K=clc.visc_p, 
+    #     tao=clc.tao_y,
+    #     D_o=clc.global_od_array, 
+    #     D_i=clc.global_id_array,
+    #     D_w=clc.HOLE_ARRAY
+    # )
+
     P_drop_inner , P_drop_outer, v_i, v_o = p_drop(
         Q=flowrate,
         rho=clc.mud_density_ppg, 
@@ -9,8 +24,7 @@ def circl(flowrate, length):
         tao=clc.tao_y,
         D_o=clc.global_od_array, 
         D_i=clc.global_id_array,
-        D_w=clc.HOLE_ARRAY,
-        del_L=clc.global_length_array
+        D_w=clc.HOLE_ARRAY
     )
     # Area_o = np.pi*(clc.global_od_array**2)/4
     Area_o = np.pi*(clc.global_hole_array[0]**2 - clc.global_od_array**2)/4
