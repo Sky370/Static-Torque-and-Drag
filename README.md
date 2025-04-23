@@ -15,6 +15,6 @@
 * Added .gitignore
 * Fluid forces need to be verified
 * Added new Run.py file
-* The pressure loss calculation function is old (stepwise)
-* Hole depth cannot be different from bit depth (On-bottom)
+* The pressure loss calculation function is <b>New</b> (Advanced)
+* Hole depth can be different from bit depth (On/Off-bottom)
  
