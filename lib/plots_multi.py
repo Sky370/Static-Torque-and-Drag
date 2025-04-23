@@ -6,7 +6,7 @@ from lib.tripping import trip_operation
 from lib.init_xls import N2lbf, Nm2lbfft
 
 def plot_profiles_vs_gpm(
-    total_length: float,
+    bit_depth: float,
     wob: float = 0.0,
     tob: float = 0.0,
     gpm_list: list[float] = None,
@@ -27,13 +27,13 @@ def plot_profiles_vs_gpm(
             F_b=wob,
             T_b=tob,
             GPM=gpm,
-            length=total_length,
+            length=bit_depth,
             operation=operation
         )
         profiles.append((gpm, F, T))
 
     # shared MD axis (use the first profile length)
-    md_axis = np.linspace(total_length, 0, len(profiles[0][1]))
+    md_axis = np.linspace(bit_depth, 0, len(profiles[0][1]))
 
     fig = make_subplots(
         rows=1, cols=1,

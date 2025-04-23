@@ -5,7 +5,7 @@ from lib.tripping import trip_operation
 from lib.init_xls import N2lbf, Nm2lbfft
 
 def plot_hookload_torque(
-    total_length: float,
+    bit_depth: float,
     wob: float = 0.0,
     tob: float = 0.0,
     GPM: float = 0.0,
@@ -16,12 +16,12 @@ def plot_hookload_torque(
     show: bool = True
 ) -> go.Figure:
 
-    hkld_pooh, _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=total_length, operation="POOH")
-    hkld_rih,  _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=total_length, operation="RIH")
-    hkld_rob,  _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=total_length, operation="ROB")
-    _, torque    = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=total_length, operation="TQ")
+    hkld_pooh, _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=bit_depth, operation="POOH")
+    hkld_rih,  _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=bit_depth, operation="RIH")
+    hkld_rob,  _ = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=bit_depth, operation="ROB")
+    _, torque    = trip_operation(F_b=wob, T_b=tob, GPM=GPM, length=bit_depth, operation="TQ")
 
-    md_axis = np.linspace(total_length, 0, len(hkld_pooh))
+    md_axis = np.linspace(bit_depth, 0, len(hkld_pooh))
     fig = make_subplots(
         rows=1, cols=2,
         subplot_titles=("Hookload", "Torque"),
