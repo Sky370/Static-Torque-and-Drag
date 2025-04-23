@@ -4,12 +4,17 @@
 ### Features:
 * Tripping operations can be simulated (RIH, POOH)
 * No pipe rotational effect
-* No Torque calculation
+* Includes Torque calculation
 * Viscous force due to circulation is accounted
 * Inertial Forces are accounted
 
 ## Main Changes:
-* Input data has information for 'RESTR'
+* Completely changed the Input data
+* Added new plot functions to easily plot the forces
+* Removed unnecessary files
+* Added .gitignore
+* Fluid forces need to be verified
+* Added new Run.py file
 * The pressure loss calculation function is old (stepwise)
 * Hole depth cannot be different from bit depth (On-bottom)
  

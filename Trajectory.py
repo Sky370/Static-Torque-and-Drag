@@ -1,11 +1,11 @@
-from lib1.constants import Calculations
-from lib1.init_xls import *
+from lib.constants import Calculations
+from lib.init_xls import *
 import numpy as np
 import os
 import plotly.graph_objects as go
 
 # Data for three-dimensional line and points
-clc = Calculations(lengths=21500)
+clc = Calculations(depth=21500)
 x = np.cumsum(clc.del_x)
 y = np.cumsum(clc.del_y)
 z = np.cumsum(clc.del_z)*(-1)
