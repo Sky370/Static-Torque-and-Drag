@@ -1,38 +1,41 @@
 # Static Torque & Drag Model (v3.0)
 
-A 3D soft-string **static** torque and drag model with no vibrational effects, suitable for simulating well tripping operations under a variety of circulation rates.
+A modular, 3D **soft-string static** torque and drag model for simulating drillstring behavior during tripping operations under varying circulation conditions. This model **excludes vibrational effects** and is tailored for practical field scenarios.
 
 ---
 
-## Features
+## 🚀 Features
 
-- **Tripping operations**: simulate Run-In-Hole (RIH) and Pull-Out-Of-Hole (POOH)  
-- **Torque calculation** via dedicated “TQ” operation  
-- **Viscous** (hydraulic) and **inertial** fluid forces fully accounted  
-- **Configurable flow rate** (GPM) drives both hookload and torque profiles  
-- **Modular plotting utilities** for single-rate and multi-rate comparison  
-
----
-
-## What’s New in v3.0
-
-- **Overhauled input workflow**: cleaner argument lists, explicit `GPM` parameter  
-- **New plotting modules**  
-  - `lib/plots.py` → single-rate, two-panel Hookload & Torque  
-  - `lib/multi_plots.py` → multi-rate, single-panel “ROB vs. MD” (or any operation)  
-- **Removed legacy files** and added a `.gitignore`  
-- **Advanced pressure-loss** calculation in `lib/circulation.py`  
-- **Hole-vs-bit depth toggle** (on/off-bottom) support  
-- **New entrypoint**: `Run.py` replaces older scripts  
-- **Fluid-force model**: please verify against field data  
+- Simulate **Run-In-Hole (RIH)** and **Pull-Out-Of-Hole (POOH)** operations  
+- Dedicated **torque analysis mode** ("TQ") for quick evaluations  
+- Incorporates **viscous (hydraulic)** and **inertial fluid** forces  
+- Supports **custom flow rate (GPM)** inputs that influence both hookload and torque  
+- Includes **plotting utilities** for single and multi-rate comparisons  
 
 ---
 
-## Installation
+## 🔧 What’s New in v3.0
 
-1. **Clone the repository**  
+- **Cleaned input workflow**: simpler arguments, explicit `GPM` control  
+- **Modular plotting system**:
+  - `lib/plots.py`: two-panel Hookload & Torque (single rate)
+  - `lib/multi_plots.py`: compact multi-rate profile comparison  
+- **Advanced pressure-loss modeling** in `lib/circulation.py`  
+- **Hole vs. bit depth** toggle now supported (on/off-bottom logic)  
+- **Refined structure**: 
+  - Old scripts removed  
+  - `.gitignore` added  
+  - Unified entrypoint: `Run.py`  
+
+> ℹ️ The fluid-force model is experimental. Validation with real field data is recommended.
+
+---
+
+## ⚙️ Installation
+
+1. **Clone the repository**
    ```bash
-   git clone [https://github.com/Sky370/Torque-and-Drag.git](https://github.com/Sky370/Torque-and-Drag.git)
+   git clone https://github.com/Sky370/Torque-and-Drag.git
    cd Torque-and-Drag
 2. **Create & activate a virtual environment**
     ```bash
