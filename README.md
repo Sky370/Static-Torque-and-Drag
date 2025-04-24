@@ -11,6 +11,7 @@ A modular, 3D **soft-string static** torque and drag model for simulating drills
 - Incorporates **viscous (hydraulic)** and **inertial fluid** forces  
 - Supports **custom flow rate (GPM)** inputs that influence both hookload and torque  
 - Includes **plotting utilities** for single and multi-rate comparisons  
+- Generate **3D well trajectory** plots from trajectory input files  
 
 ---
 
@@ -22,6 +23,7 @@ A modular, 3D **soft-string static** torque and drag model for simulating drills
   - `lib/multi_plots.py`: compact multi-rate profile comparison  
 - **Advanced pressure-loss modeling** in `lib/circulation.py`  
 - **Hole vs. bit depth** toggle now supported (on/off-bottom logic)  
+- **New 3D plotting** module: `Trajectory.py` for visualizing well geometry  
 - **Refined structure**: 
   - Old scripts removed  
   - `.gitignore` added  
@@ -62,8 +64,13 @@ Navigate to the `Run.py` file and adjust the arguments before executing the simu
 
 #### `plot_profiles_vs_gpm(GPM=[0, 250, 470], operation='ROB')`
 - Calculates hookload and torque **with fluid circulation**
-- Accepts multiple GPM values for comparison. Additional flowrates can be easily added/removed.
+- Accepts multiple GPM values for comparison. Additional flowrates can be easily added/removed
 - Default operation is `'ROB'` (rotation off-bottom, no tripping)
+
+#### `Trajectory.py`
+- Plots the 3D well trajectory using data from the specified `.xlsx` or `.csv` input file
+- Accepts multiple GPM values for comparison. Additional flowrates can be easily added/removed.
+- Useful for visualizing complex wellbore geometry and trajectory planning
 
 ---
 
@@ -89,5 +96,7 @@ You can choose to save the simulation results in **interactive** or **static** f
 - **Static (PNG)**  
   Uncomment `image_out` and set `image_scale` for high-resolution `.png` images  
   - `image_scale` adjusts the output quality (higher value = higher resolution)
+
+Additionally, the `Trajectory.py` saves the 3D well trajectory plot in the `.\Output\` directory.
 
 ---
